@@ -10,6 +10,8 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!--supbase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -429,7 +431,7 @@
                 >
                   <p class="text-xs sm:text-sm font-medium">
                     Saber exactamente cómo hacerte reír o calmarte cuando te
-                    pones en modo pánico, ¡y decirte 'Flor de Azucena'!
+                    pones en modo pánico.
                   </p>
                 </div>
               </div>
@@ -519,7 +521,8 @@
                   >Vale Por:</span
                 >
                 <h4 class="font-fun text-base font-bold text-slate-800">
-                  20 minutos llenos de abrazos
+                  1 dia sin que pueda negarme a lo que me pidas, por ese dia soy
+                  todo tuyo
                 </h4>
                 <p class="text-xs text-slate-500">
                   Sin derecho a negarme en absoluto.
@@ -616,7 +619,7 @@
             class="w-full sm:w-auto px-6 py-3.5 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-fun font-bold text-sm shadow-lg hover:shadow-green-200 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
           >
             <i data-lucide="message-circle" class="w-5 h-5"></i>
-            <span>¡Enviar respuesta a mi novio en WhatsApp! ❤️</span>
+            <span>¡Enviar respuesta a mi querido Hesed en WhatsApp! ❤️</span>
           </button>
         </div>
       </div>
@@ -682,7 +685,7 @@
     <audio id="bg-music" loop preload="auto">
       <!-- Relaxing romantic ambient tune stream -->
       <source
-        src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3"
+        src="C:\Users\JOSE RODRIGO\Downloads\carta-amor\Tu Amor Es Un Sueño- Tercer Cielo.mp3"
         type="audio/mpeg"
       />
     </audio>
@@ -893,32 +896,84 @@
         inner.classList.toggle("rotate-y-180");
       }
 
+      //
+
+      const SUPABASE_URL = "https://hywxlwgqqetxpyriijhg.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "sb_publishable_jeROnPyAnCDABA3ogXvycg_8xwmPTP-";
+
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+      );
+
       // --- Claim Coupon Function ---
-      function claimCoupon(title) {
-        confetti({
-          particleCount: 50,
-          spread: 50,
-          origin: { y: 0.7 },
-        });
+      // Mostrar la animación de confeti
 
-        // Gentle custom notification instead of alert()
-        const toast = document.createElement("div");
-        toast.className =
-          "fixed bottom-5 right-5 z-50 bg-rose-600 text-white px-5 py-3 rounded-2xl shadow-xl font-fun text-sm flex items-center gap-2 animate-bounce";
-        toast.innerHTML = `<span>🎟️ ¡Cupón "<b>${title}</b>" Canjeado! Guardando orden para tu novio...</span>`;
-        document.body.appendChild(toast);
+      async function claimCoupon(title) {
+        try {
+          if (!supabaseClient) {
+            throw new Error("La conexión con Supabase no está configurada.");
+          }
 
-        setTimeout(() => {
-          toast.remove();
-        }, 3500);
+          const { data, error } = await supabaseClient.rpc("claim_one_coupon", {
+            p_title: title,
+          });
+
+          console.log("Cupón enviado:", title);
+          console.log("Respuesta de Supabase:", data);
+          console.log("Error de Supabase:", error);
+
+          if (error) {
+            throw error;
+          }
+
+          const resultado = Array.isArray(data) ? data[0] : data;
+
+          if (
+            resultado &&
+            (resultado.claimed === true || resultado.claimed === "true")
+          ) {
+            if (typeof confetti === "function") {
+              confetti({
+                particleCount: 70,
+                spread: 60,
+                origin: { y: 0.7 },
+              });
+            }
+
+            showCouponSurprise(title);
+            return;
+          }
+
+          if (
+            resultado &&
+            (resultado.claimed === false || resultado.claimed === "false")
+          ) {
+            alert(
+              "Ya existe una elección guardada: " +
+                (resultado.chosen_coupon || "cupón elegido"),
+            );
+            return;
+          }
+
+          console.error("Respuesta inesperada:", data);
+          alert("La respuesta de Supabase no tiene el formato esperado.");
+        } catch (error) {
+          console.error("Error al elegir el cupón:", error);
+          alert("Error: " + (error.message || error));
+        }
       }
 
       // --- Send Response back via WhatsApp ---
       function sendWhatsAppResponse() {
-        const text = encodeURIComponent(
-          "¡Hola mi amor! 🥰 Vi la página web que me hiciste... ¡Me encantó la sorpresa, mi querido hesed! Te amo muchísimo ❤️",
-        );
-        window.open(`https://api.whatsapp.com/send?text=${text}`, "63334060");
+        const numero = "59160895743"; // Reemplaza con tu número
+        const mensaje =
+          "¡Hola! 🌸 Flor de Azucena ha elegido un cupón de tu página 💗";
+
+        const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+
+        window.open(url, "_blank");
       }
 
       // --- Floating Hearts Canvas Effect ---
@@ -1023,6 +1078,222 @@
           requestAnimationFrame(animate);
         }
         animate();
+      }
+    </script>
+
+    <!-- SORPRESA PARA MI FLOR DE AZUCENA -->
+    <div id="coupon-surprise" class="surprise-overlay" style="display: none">
+      <div class="surprise-card" id="surprise-card">
+        <div class="surprise-hearts">💗 ✨ 🌸 ✨ 💗</div>
+
+        <div class="surprise-flower">🌷</div>
+
+        <p class="surprise-small">¡ESTO ES PARA TI, MI AMOR!</p>
+
+        <h2>¡Tenemos un plan! 💕</h2>
+
+        <p class="surprise-message">
+          Mi flor de azucena, elegiste algo especial... pero lo más bonito de
+          todo es poder compartirlo contigo.
+        </p>
+
+        <div class="surprise-coupon">
+          <span>🎁 TU CUPÓN ES</span>
+          <h3 id="surprise-coupon-title">Tu sorpresa</h3>
+        </div>
+
+        <p class="surprise-footer">
+          No importa el plan, lo importante es que sea contigo. ❤️
+        </p>
+
+        <button class="surprise-button" onclick="closeCouponSurprise()">
+          ¡Qué emoción! 💖
+        </button>
+
+        <div class="surprise-bottom">Hecho para ti, con mucho amor 🌸</div>
+      </div>
+    </div>
+
+    <style>
+      .surprise-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: rgba(91, 35, 67, 0.65);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        overflow-y: auto;
+        animation: surpriseFade 0.4s ease;
+      }
+
+      .surprise-card {
+        width: 100%;
+        max-width: 390px;
+        box-sizing: border-box;
+        padding: 27px 22px;
+        border: 3px solid #fff;
+        border-radius: 30px;
+        background: linear-gradient(145deg, #fff8fc, #ffe0ed, #fff4f8);
+        box-shadow: 0 20px 70px #5b234755;
+        text-align: center;
+        animation: surprisePop 0.65s cubic-bezier(0.2, 1.5, 0.5, 1);
+      }
+
+      .surprise-hearts {
+        font-size: 23px;
+        animation: surpriseFloat 1.8s ease-in-out infinite;
+      }
+
+      .surprise-flower {
+        font-size: 65px;
+        margin: 8px 0;
+        animation: surpriseSpin 2.5s ease-in-out infinite;
+      }
+
+      .surprise-small {
+        color: #d94680;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 2px;
+      }
+
+      .surprise-card h2 {
+        color: #be185d;
+        font-size: 29px;
+        font-weight: 900;
+        margin: 10px 0;
+      }
+
+      .surprise-message {
+        color: #854363;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .surprise-coupon {
+        margin: 20px 0;
+        padding: 17px;
+        border: 2px dashed #f472b6;
+        border-radius: 20px;
+        background: #ffffffc9;
+      }
+
+      .surprise-coupon span {
+        color: #db2777;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 1px;
+      }
+
+      .surprise-coupon h3 {
+        color: #9d174d;
+        font-size: 19px;
+        font-weight: 900;
+        margin-top: 9px;
+      }
+
+      .surprise-footer {
+        color: #be185d;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.6;
+      }
+
+      .surprise-button {
+        width: 100%;
+        margin-top: 17px;
+        padding: 14px;
+        border: 0;
+        border-radius: 18px;
+        background: linear-gradient(90deg, #ec4899, #e11d48);
+        color: white;
+        font-size: 15px;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 7px 18px #e11d4840;
+        transition: transform 0.2s;
+      }
+
+      .surprise-button:hover {
+        transform: scale(1.04);
+      }
+
+      .surprise-bottom {
+        margin-top: 15px;
+        color: #be668c;
+        font-size: 11px;
+      }
+
+      @keyframes surpriseFade {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes surprisePop {
+        from {
+          opacity: 0;
+          transform: scale(0.65) translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      @keyframes surpriseFloat {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-7px);
+        }
+      }
+
+      @keyframes surpriseSpin {
+        0%,
+        100% {
+          transform: rotate(-8deg) scale(1);
+        }
+        50% {
+          transform: rotate(8deg) scale(1.12);
+        }
+      }
+    </style>
+
+    <script>
+      function showCouponSurprise(title) {
+        document.getElementById("surprise-coupon-title").textContent = title;
+        document.getElementById("coupon-surprise").style.display = "flex";
+
+        if (typeof confetti === "function") {
+          confetti({
+            particleCount: 140,
+            spread: 100,
+            origin: { y: 0.65 },
+            colors: ["#ec4899", "#f9a8d4", "#fb7185", "#ffffff"],
+          });
+
+          setTimeout(() => {
+            confetti({
+              particleCount: 80,
+              spread: 120,
+              origin: { y: 0.65 },
+            });
+          }, 500);
+        }
+      }
+
+      function closeCouponSurprise() {
+        const modal = document.getElementById("coupon-surprise");
+        modal.style.display = "none";
       }
     </script>
   </body>
