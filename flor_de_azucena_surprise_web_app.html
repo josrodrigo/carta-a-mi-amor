@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Para Mi Flor de Azucena 🌸</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: "#fff1f2",
+                100: "#ffe4e6",
+                200: "#fecdd3",
+                300: "#fda4af",
+                400: "#fb7185",
+                500: "#f43f5e",
+                600: "#e11d48",
+                700: "#be123c",
+              },
+            },
+            fontFamily: {
+              handwriting: ["Caveat", "cursive"],
+              fun: ["Fredoka", "sans-serif"],
+              sans: ["Nunito", "sans-serif"],
+            },
+            animation: {
+              "bounce-slow": "bounce 2.5s infinite",
+              float: "float 6s ease-in-out infinite",
+              wiggle: "wiggle 0.5s ease-in-out infinite",
+              "pulse-glow": "pulseGlow 2s infinite",
+            },
+            keyframes: {
+              float: {
+                "0%, 100%": { transform: "translateY(0px) rotate(0deg)" },
+                "50%": { transform: "translateY(-15px) rotate(3deg)" },
+              },
+              wiggle: {
+                "0%, 100%": { transform: "rotate(-3deg)" },
+                "50%": { transform: "rotate(3deg)" },
+              },
+              pulseGlow: {
+                "0%, 100%": { boxShadow: "0 0 15px rgba(244, 63, 94, 0.4)" },
+                "50%": { boxShadow: "0 0 30px rgba(244, 63, 94, 0.8)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Nunito", sans-serif;
+        background: linear-gradient(
+          135deg,
+          #fbcfe8 0%,
+          #ffe4e6 50%,
+          #fecdd3 100%
+        );
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Floating Hearts Background Canvas */
+      #heart-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #ffe4e6;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #fda4af;
+        border-radius: 9999px;
+      }
+
+      /* 3D Flip Card Styles */
+      .perspective-1000 {
+        perspective: 1000px;
+      }
+      .transform-style-3d {
+        transform-style: preserve-3d;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .backface-hidden {
+        backface-visibility: hidden;
+      }
+      .rotate-y-180 {
+        transform: rotateY(180deg);
+      }
+
+      /* Custom Shimmer effect */
+      .shimmer {
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.6) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="relative min-h-screen text-slate-800 flex flex-col justify-between"
+  >
+    <!-- Floating Background Canvas -->
+    <canvas id="heart-canvas"></canvas>
+
+    <!-- TOP AUDIO CONTROL & HEADER -->
+    <header
+      class="relative z-20 w-full p-4 flex justify-between items-center max-w-4xl mx-auto"
+    >
+      <div
+        class="flex items-center gap-2 bg-white/70 backdrop-blur-md px-4 py-2 rounded-full shadow-sm border border-rose-200"
+      >
+        <span class="text-xl">🌸</span>
+        <span class="font-fun font-semibold text-rose-600 text-sm md:text-base"
+          >Para mi Flor de Azucena</span
+        >
+      </div>
+      <button
+        id="music-toggle"
+        class="bg-white/80 hover:bg-white text-rose-500 hover:text-rose-600 p-2.5 rounded-full shadow-md border border-rose-200 transition-all transform hover:scale-110 flex items-center gap-2 px-4 text-xs font-bold"
+        title="Música de fondo"
+      >
+        <i data-lucide="music" class="w-4 h-4"></i>
+        <span id="music-text">Música OFF</span>
+      </button>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="relative z-10 flex-grow flex items-center justify-center p-4">
+      <!-- ================= LOGIN SCREEN ================= -->
+      <div
+        id="login-card"
+        class="w-full max-w-md bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-rose-200 transition-all duration-500 animate-float"
+      >
+        <div class="text-center mb-6">
+          <div class="relative inline-block">
+            <div
+              class="w-20 h-20 sm:w-24 sm:h-24 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-3 border-4 border-rose-300 shadow-inner"
+            >
+              <i
+                data-lucide="lock"
+                class="w-10 h-10 text-rose-500 animate-pulse"
+              ></i>
+            </div>
+            <span
+              class="absolute -bottom-1 -right-1 bg-yellow-300 text-xs px-2 py-0.5 rounded-full border border-yellow-400 font-bold shadow-sm"
+              >Top Secret 🔒</span
+            >
+          </div>
+          <h1
+            class="text-2xl sm:text-3xl font-fun font-bold text-slate-800 mt-2"
+          >
+            Acceso Restringido 💌
+          </h1>
+          <p class="text-slate-500 text-xs sm:text-sm mt-1">
+            Este contenido está protegido para la mujer más hermosa del planeta.
+          </p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+          <div>
+            <label
+              class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1"
+            >
+              Contraseña secreta de nuestro amor
+            </label>
+            <div class="relative">
+              <input
+                type="password"
+                id="password-input"
+                placeholder="Ej: Te Amo, Flor, Nuestra fecha..."
+                required
+                class="w-full px-4 py-3 rounded-2xl bg-rose-50/50 border-2 border-rose-200 focus:border-rose-400 focus:bg-white focus:outline-none transition-all text-slate-700 text-sm pr-10"
+              />
+              <button
+                type="button"
+                onclick="togglePasswordVisibility()"
+                class="absolute right-3 top-3 text-rose-400 hover:text-rose-600"
+              >
+                <i data-lucide="eye" id="eye-icon" class="w-5 h-5"></i>
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            id="submit-btn"
+            class="w-full py-3.5 px-6 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-fun font-bold text-lg rounded-2xl shadow-lg hover:shadow-rose-300/50 transform hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2"
+          >
+            <span>Desbloquear Mi Sorpresa</span>
+            <i data-lucide="heart" class="w-5 h-5 fill-white"></i>
+          </button>
+        </form>
+
+        <!-- Error Teasing Feedback Container -->
+        <div
+          id="error-box"
+          class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-2xl text-center text-red-600 text-xs font-semibold animate-wiggle"
+        >
+          <p id="error-message">¡Nop! Esa contraseña no es la correcta... 🤔</p>
+        </div>
+
+        <!-- Playful Help Route Button -->
+        <div class="mt-6 pt-4 border-t border-rose-100 text-center">
+          <p class="text-xs text-slate-500 mb-2 font-medium">
+            ¿Se te olvidó la clave o estás perdiendo la calma?
+          </p>
+          <button
+            onclick="openAzucenaModal()"
+            class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-100 via-rose-100 to-amber-100 hover:from-amber-200 hover:to-rose-200 border border-amber-300 rounded-2xl text-rose-700 font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-2 group"
+          >
+            <span class="text-base group-hover:scale-125 transition-transform"
+              >🌺</span
+            >
+            <span>¡Ayuda! "Vamos mi flor de azucena..."</span>
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-500"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= SURPRISE CONTENT REVEAL SCREEN ================= -->
+      <div
+        id="reveal-card"
+        class="hidden w-full max-w-3xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl p-6 sm:p-10 border-2 border-rose-200 my-6"
+      >
+        <!-- Banner / Header -->
+        <div class="text-center mb-8 relative">
+          <span
+            class="inline-block px-4 py-1.5 bg-rose-100 text-rose-600 rounded-full text-xs sm:text-sm font-bold tracking-wide uppercase mb-3 shadow-inner"
+          >
+            ✨ ¡Bienvenida a tu lugar especial! ✨
+          </span>
+          <h1
+            class="text-3xl sm:text-5xl font-handwriting font-bold text-rose-600 leading-tight"
+          >
+            Para la flor más hermosa de mi vida 🌸
+          </h1>
+          <p class="text-slate-500 text-sm mt-2 font-medium">
+            Creé esta pequeña esquina de internet solo para recordarte lo mucho
+            que te amo.
+          </p>
+        </div>
+
+        <!-- TAB NAVIGATION -->
+        <div
+          class="flex justify-center gap-2 mb-8 border-b border-rose-100 pb-4"
+        >
+          <button
+            onclick="switchTab('letter')"
+            id="tab-letter"
+            class="tab-btn active px-4 py-2 rounded-2xl font-fun text-sm font-bold transition-all bg-rose-500 text-white shadow-md flex items-center gap-2"
+          >
+            <i data-lucide="mail-open" class="w-4 h-4"></i>
+            <span>Carta de Amor</span>
+          </button>
+          <button
+            onclick="switchTab('memories')"
+            id="tab-memories"
+            class="tab-btn px-4 py-2 rounded-2xl font-fun text-sm font-bold transition-all bg-rose-50/80 text-rose-600 hover:bg-rose-100 flex items-center gap-2"
+          >
+            <i data-lucide="images" class="w-4 h-4"></i>
+            <span>Recuerdos</span>
+          </button>
+          <button
+            onclick="switchTab('coupons')"
+            id="tab-coupons"
+            class="tab-btn px-4 py-2 rounded-2xl font-fun text-sm font-bold transition-all bg-rose-50/80 text-rose-600 hover:bg-rose-100 flex items-center gap-2"
+          >
+            <i data-lucide="ticket" class="w-4 h-4"></i>
+            <span>Cupones</span>
+          </button>
+        </div>
+
+        <!-- TAB CONTENT 1: LOVE LETTER -->
+        <div
+          id="content-letter"
+          class="tab-content transition-all duration-300"
+        >
+          <div
+            class="bg-amber-50/60 border border-amber-200/60 rounded-3xl p-6 sm:p-8 shadow-inner relative overflow-hidden"
+          >
+            <div
+              class="absolute -top-10 -right-10 text-9xl opacity-10 pointer-events-none"
+            >
+              🌹
+            </div>
+
+            <h2 class="text-2xl font-handwriting text-rose-700 font-bold mb-4">
+              Mi querida Flor de Azucena,
+            </h2>
+
+            <div
+              class="space-y-4 text-slate-700 leading-relaxed text-sm sm:text-base font-sans"
+            >
+              <p>
+                Si estás leyendo esto, es porque encontraste el camino (¡o
+                porque el botón mágico te dio una mano!). Quiero tomarme un
+                momento para decirte algo súper especial.
+              </p>
+              <p>
+                Cada día a tu lado es una aventura maravillosa. Tu sonrisa
+                ilumina mis mejores días y le da calma a los momentos difíciles.
+                Eres mi compañera de vida, mi confidente, mi risa favorita y la
+                persona con la que siempre quiero compartir mi tiempo.
+              </p>
+              <p>
+                Gracias por ser exactamente como eres: tan dulce, divertida,
+                talentosa y única. Prometo cuidarte, sacarte una sonrisa siempre
+                que pierdas la calma y recordarte todos los días lo
+                increíblemente afortunado que soy de tenerte.
+              </p>
+              <p class="font-semibold text-rose-600">
+                Te amo infinitamente, hoy y siempre. ❤️
+              </p>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-amber-200/80 text-right">
+              <span class="font-handwriting text-2xl text-rose-600 font-bold"
+                >Con todo mi amor, Tu querido Hesed 🥰</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB CONTENT 2: MEMORY FLIP CARDS -->
+        <div id="content-memories" class="tab-content hidden space-y-4">
+          <p class="text-xs sm:text-sm text-center text-slate-500 mb-4">
+            Haz clic en cada tarjeta para girarla y descubrir nuestros momentos
+            o cosas que amo de ti 💫
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Flip Card 1 -->
+            <div
+              class="perspective-1000 h-44 cursor-pointer"
+              onclick="flipCard(this)"
+            >
+              <div
+                class="card-inner relative w-full h-full transform-style-3d shadow-md rounded-2xl"
+              >
+                <!-- Front -->
+                <div
+                  class="absolute w-full h-full backface-hidden bg-gradient-to-br from-rose-100 to-pink-100 border-2 border-rose-300 rounded-2xl p-4 flex flex-col justify-center items-center text-center"
+                >
+                  <span class="text-3xl mb-2">✨</span>
+                  <h3 class="font-fun font-bold text-rose-700 text-base">
+                    Lo primero que pensé al verte
+                  </h3>
+                  <p class="text-xs text-slate-500 mt-1">
+                    (Toca para descubrir)
+                  </p>
+                </div>
+                <!-- Back -->
+                <div
+                  class="absolute w-full h-full backface-hidden rotate-y-180 bg-rose-500 text-white rounded-2xl p-4 flex flex-col justify-center items-center text-center"
+                >
+                  <p class="text-xs sm:text-sm font-medium">
+                    "Esta chica tiene los ojos más lindos que he visto, una
+                    sonrisa de la que nunca me voy a cansar, tienes ese algo que
+                    cuando te miro me atraes hacia ti sin que pueda resistirme
+                    ."
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Flip Card 2 -->
+            <div
+              class="perspective-1000 h-44 cursor-pointer"
+              onclick="flipCard(this)"
+            >
+              <div
+                class="card-inner relative w-full h-full transform-style-3d shadow-md rounded-2xl"
+              >
+                <!-- Front -->
+                <div
+                  class="absolute w-full h-full backface-hidden bg-gradient-to-br from-pink-100 to-rose-100 border-2 border-rose-300 rounded-2xl p-4 flex flex-col justify-center items-center text-center"
+                >
+                  <span class="text-3xl mb-2">😂</span>
+                  <h3 class="font-fun font-bold text-rose-700 text-base">
+                    Mi superpoder contigo
+                  </h3>
+                  <p class="text-xs text-slate-500 mt-1">
+                    (Toca para descubrir)
+                  </p>
+                </div>
+                <!-- Back -->
+                <div
+                  class="absolute w-full h-full backface-hidden rotate-y-180 bg-rose-500 text-white rounded-2xl p-4 flex flex-col justify-center items-center text-center"
+                >
+                  <p class="text-xs sm:text-sm font-medium">
+                    Saber exactamente cómo hacerte reír o calmarte cuando te
+                    pones en modo pánico, ¡y decirte 'Flor de Azucena'!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Flip Card 3 -->
+            <div
+              class="perspective-1000 h-44 cursor-pointer"
+              onclick="flipCard(this)"
+            >
+              <div
+                class="card-inner relative w-full h-full transform-style-3d shadow-md rounded-2xl"
+              >
+                <!-- Front -->
+                <div
+                  class="absolute w-full h-full backface-hidden bg-gradient-to-br from-rose-100 to-amber-100 border-2 border-rose-300 rounded-2xl p-4 flex flex-col justify-center items-center text-center"
+                >
+                  <span class="text-3xl mb-2">🍕</span>
+                  <h3 class="font-fun font-bold text-rose-700 text-base">
+                    Cita Perfecta
+                  </h3>
+                  <p class="text-xs text-slate-500 mt-1">
+                    (Toca para descubrir)
+                  </p>
+                </div>
+                <!-- Back -->
+                <div
+                  class="absolute w-full h-full backface-hidden rotate-y-180 bg-rose-500 text-white rounded-2xl p-4 flex flex-col justify-center items-center text-center"
+                >
+                  <p class="text-xs sm:text-sm font-medium">
+                    Cualquier lugar con buena comida, tu compañía, risas
+                    infinitas y abrazos apretados.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Flip Card 4 -->
+            <div
+              class="perspective-1000 h-44 cursor-pointer"
+              onclick="flipCard(this)"
+            >
+              <div
+                class="card-inner relative w-full h-full transform-style-3d shadow-md rounded-2xl"
+              >
+                <!-- Front -->
+                <div
+                  class="absolute w-full h-full backface-hidden bg-gradient-to-br from-pink-100 to-rose-100 border-2 border-rose-300 rounded-2xl p-4 flex flex-col justify-center items-center text-center"
+                >
+                  <span class="text-3xl mb-2">🚀</span>
+                  <h3 class="font-fun font-bold text-rose-700 text-base">
+                    Un deseo para el futuro
+                  </h3>
+                  <p class="text-xs text-slate-500 mt-1">
+                    (Toca para descubrir)
+                  </p>
+                </div>
+                <!-- Back -->
+                <div
+                  class="absolute w-full h-full backface-hidden rotate-y-180 bg-rose-500 text-white rounded-2xl p-4 flex flex-col justify-center items-center text-center"
+                >
+                  <p class="text-xs sm:text-sm font-medium">
+                    Viajar por muchos lugares nuevos, construir más sueños y
+                    seguir coleccionando recuerdos inolvidables juntos.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB CONTENT 3: LOVE COUPONS -->
+        <div id="content-coupons" class="tab-content hidden space-y-4">
+          <p class="text-xs sm:text-sm text-center text-slate-500 mb-4">
+            Cupones válidos por tiempo ilimitado. ¡Haz clic para canjear uno
+            cuando quieras!
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Coupon 1 -->
+            <div
+              class="bg-gradient-to-r from-rose-50 to-pink-100 border-2 border-dashed border-rose-300 rounded-2xl p-4 relative flex items-center justify-between shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div>
+                <span
+                  class="text-xs font-bold text-rose-500 uppercase tracking-widest"
+                  >Vale Por:</span
+                >
+                <h4 class="font-fun text-base font-bold text-slate-800">
+                  20 minutos llenos de abrazos
+                </h4>
+                <p class="text-xs text-slate-500">
+                  Sin derecho a negarme en absoluto.
+                </p>
+              </div>
+              <button
+                onclick="claimCoupon('Masajes de 10 min 💆‍♀️')"
+                class="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold shadow transition-all"
+              >
+                Canjear
+              </button>
+            </div>
+
+            <!-- Coupon 2 -->
+            <div
+              class="bg-gradient-to-r from-rose-50 to-pink-100 border-2 border-dashed border-rose-300 rounded-2xl p-4 relative flex items-center justify-between shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div>
+                <span
+                  class="text-xs font-bold text-rose-500 uppercase tracking-widest"
+                  >Vale Por:</span
+                >
+                <h4 class="font-fun text-base font-bold text-slate-800">
+                  Una Salida por tu Postre Favorito 🍦
+                </h4>
+                <p class="text-xs text-slate-500">
+                  Invito yo y tú eliges el lugar.
+                </p>
+              </div>
+              <button
+                onclick="claimCoupon('Salida por Postre 🍦')"
+                class="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold shadow transition-all"
+              >
+                Canjear
+              </button>
+            </div>
+
+            <!-- Coupon 3 -->
+            <div
+              class="bg-gradient-to-r from-rose-50 to-pink-100 border-2 border-dashed border-rose-300 rounded-2xl p-4 relative flex items-center justify-between shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div>
+                <span
+                  class="text-xs font-bold text-rose-500 uppercase tracking-widest"
+                  >Vale Por:</span
+                >
+                <h4 class="font-fun text-base font-bold text-slate-800">
+                  Ganar una Discusión Automáticamente 🏆
+                </h4>
+                <p class="text-xs text-slate-500">
+                  Muestras este cupón y tienes la razón.
+                </p>
+              </div>
+              <button
+                onclick="claimCoupon('Tener la razón automáticamente 🏆')"
+                class="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold shadow transition-all"
+              >
+                Canjear
+              </button>
+            </div>
+
+            <!-- Coupon 4 -->
+            <div
+              class="bg-gradient-to-r from-rose-50 to-pink-100 border-2 border-dashed border-rose-300 rounded-2xl p-4 relative flex items-center justify-between shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div>
+                <span
+                  class="text-xs font-bold text-rose-500 uppercase tracking-widest"
+                  >Vale Por:</span
+                >
+                <h4 class="font-fun text-base font-bold text-slate-800">
+                  Noche de Pelis y Abrazos infinitos 🎬
+                </h4>
+                <p class="text-xs text-slate-500">
+                  Mantas, snacks y mimos asegurados.
+                </p>
+              </div>
+              <button
+                onclick="claimCoupon('Noche de Pelis y Mimos 🎬')"
+                class="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold shadow transition-all"
+              >
+                Canjear
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTION FOOTER: WHATSAPP BUTTON -->
+        <div
+          class="mt-8 pt-6 border-t border-rose-100 flex flex-col sm:flex-row gap-3 justify-center items-center"
+        >
+          <button
+            onclick="sendWhatsAppResponse()"
+            class="w-full sm:w-auto px-6 py-3.5 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-fun font-bold text-sm shadow-lg hover:shadow-green-200 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
+          >
+            <i data-lucide="message-circle" class="w-5 h-5"></i>
+            <span>¡Enviar respuesta a mi novio en WhatsApp! ❤️</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- FLOR DE AZUCENA HINT MODAL -->
+    <div
+      id="azucena-modal"
+      class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300"
+    >
+      <div
+        class="bg-white rounded-3xl max-w-md w-full p-6 text-center border-4 border-rose-300 shadow-2xl transform transition-all scale-95 opacity-0"
+        id="modal-container"
+      >
+        <div
+          class="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-3 text-4xl shadow-inner animate-bounce"
+        >
+          🌸
+        </div>
+
+        <h3
+          id="modal-title"
+          class="text-2xl font-fun font-bold text-rose-600 mb-2"
+        >
+          ¡Awww, mi flor de azucena!
+        </h3>
+
+        <p
+          id="modal-body-text"
+          class="text-slate-600 text-sm leading-relaxed mb-6"
+        >
+          ¡Vamos mi flor de azucena! Escoge esta ruta... te prometo que el
+          premio que hay al otro lado vale cada segundo. 😉
+        </p>
+
+        <div class="space-y-2">
+          <button
+            onclick="autoBypassLogin()"
+            class="w-full py-3 px-4 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-fun font-bold text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
+          >
+            <i data-lucide="key" class="w-4 h-4"></i>
+            <span>¡Entrar usando el atajo de amor! ✨</span>
+          </button>
+
+          <button
+            onclick="closeAzucenaModal()"
+            class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-2xl transition-all"
+          >
+            Seguir intentando la contraseña
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer
+      class="relative z-10 p-4 text-center text-xs text-rose-700/80 font-medium"
+    >
+      Hecho con infinitas toneladas de amor para mi persona favorita 💕
+    </footer>
+
+    <!-- BACKGROUND AUDIO -->
+    <audio id="bg-music" loop preload="auto">
+      <!-- Relaxing romantic ambient tune stream -->
+      <source
+        src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3"
+        type="audio/mpeg"
+      />
+    </audio>
+
+    <script>
+      // --- State Variables ---
+      let failCount = 0;
+      let isMusicPlaying = false;
+      const bgMusic = document.getElementById("bg-music");
+
+      // Playful mistake teasing messages
+      const teasingMessages = [
+        "¡Nop! Esa contraseña no es la correcta... 🤔",
+        "¡No pierdas la calma, mi flor de azucena! Intenta otra vez 🌸",
+        "¡Te estoy haciendo trabajar un poquito pero vale la pena! 😜",
+        "¿Estás segura? ¡Dale un toque al botón mágico de auxilio abajo! ⬇️",
+        "¡Casi casi! Bueno... en realidad no, pero te ves hermosa intentándolo. ❤️",
+      ];
+
+      // Modal playful dynamic messages based on clicks
+      const modalMessages = [
+        "¡Vamos mi flor de azucena! Escoge esta ruta... no te preocupes si no sabes la contraseña, ¡yo te abro la puerta de mi corazón! 💕",
+        "¡Ey! Si te estás desesperando, tranqui... no pierdas la calma mi flor de azucena. Presiona el botón de abajo y pasa de una vez 😉",
+        "¡Te atrapé intentando adivinar! Mejor usa la ruta mágica directo a tu regalo ✨",
+      ];
+
+      // --- Initialization ---
+      window.onload = function () {
+        lucide.createIcons();
+        initHeartCanvas();
+      };
+
+      // --- Music Control ---
+      const musicBtn = document.getElementById("music-toggle");
+      const musicText = document.getElementById("music-text");
+
+      musicBtn.addEventListener("click", () => {
+        if (isMusicPlaying) {
+          bgMusic.pause();
+          musicText.innerText = "Música OFF";
+          musicBtn.classList.remove("bg-rose-500", "text-white");
+          musicBtn.classList.add("bg-white/80", "text-rose-500");
+        } else {
+          bgMusic
+            .play()
+            .then(() => {
+              musicText.innerText = "Música ON 🎶";
+              musicBtn.classList.remove("bg-white/80", "text-rose-500");
+              musicBtn.classList.add("bg-rose-500", "text-white");
+            })
+            .catch((e) => {
+              console.log("Audio play blocked by browser:", e);
+            });
+        }
+        isMusicPlaying = !isMusicPlaying;
+      });
+
+      // --- Password Visibility Toggle ---
+      function togglePasswordVisibility() {
+        const pwdInput = document.getElementById("password-input");
+        const eyeIcon = document.getElementById("eye-icon");
+        if (pwdInput.type === "password") {
+          pwdInput.type = "text";
+          eyeIcon.setAttribute("data-lucide", "eye-off");
+        } else {
+          pwdInput.type = "password";
+          eyeIcon.setAttribute("data-lucide", "eye");
+        }
+        lucide.createIcons();
+      }
+
+      // --- Handle Login Logic ---
+      function handleLogin(event) {
+        event.preventDefault();
+        const inputVal = document
+          .getElementById("password-input")
+          .value.trim()
+          .toLowerCase();
+        const errorBox = document.getElementById("error-box");
+        const errorMsg = document.getElementById("error-message");
+
+        // Accepted passwords (very flexible to make it cute)
+        const validKeywords = [
+          "te amo",
+          "hesed",
+          "azucena",
+          "flor de azucena",
+          "amor",
+          "te quiero",
+          "mi amor",
+          "novia",
+          "2308",
+        ];
+
+        if (validKeywords.some((keyword) => inputVal.includes(keyword))) {
+          unlockSurprise();
+        } else {
+          failCount++;
+          errorBox.classList.remove("hidden");
+
+          // Pick teasing message
+          const msgIndex = Math.min(failCount - 1, teasingMessages.length - 1);
+          errorMsg.innerText = teasingMessages[msgIndex];
+
+          // Add wiggle animation trigger
+          errorBox.classList.remove("animate-wiggle");
+          void errorBox.offsetWidth; // trigger reflow
+          errorBox.classList.add("animate-wiggle");
+        }
+      }
+
+      // --- Azucena Modal Functions ---
+      function openAzucenaModal() {
+        const modal = document.getElementById("azucena-modal");
+        const modalContainer = document.getElementById("modal-container");
+        const modalText = document.getElementById("modal-body-text");
+
+        // Randomize or pick message based on fail count
+        const chosenMsg =
+          modalMessages[Math.floor(Math.random() * modalMessages.length)];
+        modalText.innerText = chosenMsg;
+
+        modal.classList.remove("hidden");
+        setTimeout(() => {
+          modalContainer.classList.remove("scale-95", "opacity-0");
+          modalContainer.classList.add("scale-100", "opacity-100");
+        }, 10);
+      }
+
+      function closeAzucenaModal() {
+        const modal = document.getElementById("azucena-modal");
+        const modalContainer = document.getElementById("modal-container");
+
+        modalContainer.classList.remove("scale-100", "opacity-100");
+        modalContainer.classList.add("scale-95", "opacity-0");
+        setTimeout(() => {
+          modal.classList.add("hidden");
+        }, 200);
+      }
+
+      // Auto bypass through shortcut button
+      function autoBypassLogin() {
+        closeAzucenaModal();
+        setTimeout(() => {
+          unlockSurprise();
+        }, 250);
+      }
+
+      // --- Unlock Reveal Screen ---
+      function unlockSurprise() {
+        const loginCard = document.getElementById("login-card");
+        const revealCard = document.getElementById("reveal-card");
+
+        // Try auto-playing music when unlocked
+        if (!isMusicPlaying) {
+          bgMusic
+            .play()
+            .then(() => {
+              isMusicPlaying = true;
+              musicText.innerText = "Música ON 🎶";
+              musicBtn.classList.remove("bg-white/80", "text-rose-500");
+              musicBtn.classList.add("bg-rose-500", "text-white");
+            })
+            .catch(() => {});
+        }
+
+        // Confetti explosion
+        confetti({
+          particleCount: 120,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+
+        // Transition
+        loginCard.classList.add("opacity-0", "scale-90");
+        setTimeout(() => {
+          loginCard.classList.add("hidden");
+          revealCard.classList.remove("hidden");
+          revealCard.classList.add("animate-float");
+        }, 400);
+      }
+
+      // --- Tab Switcher ---
+      function switchTab(tabName) {
+        // Hide all tab contents
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((el) => el.classList.add("hidden"));
+
+        // Reset button styles
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.classList.remove("bg-rose-500", "text-white", "shadow-md");
+          btn.classList.add("bg-rose-50/80", "text-rose-600");
+        });
+
+        // Show selected tab content & highlight button
+        document
+          .getElementById(`content-${tabName}`)
+          .classList.remove("hidden");
+        const activeBtn = document.getElementById(`tab-${tabName}`);
+        activeBtn.classList.remove("bg-rose-50/80", "text-rose-600");
+        activeBtn.classList.add("bg-rose-500", "text-white", "shadow-md");
+      }
+
+      // --- Flip Card Helper ---
+      function flipCard(card) {
+        const inner = card.querySelector(".card-inner");
+        inner.classList.toggle("rotate-y-180");
+      }
+
+      // --- Claim Coupon Function ---
+      function claimCoupon(title) {
+        confetti({
+          particleCount: 50,
+          spread: 50,
+          origin: { y: 0.7 },
+        });
+
+        // Gentle custom notification instead of alert()
+        const toast = document.createElement("div");
+        toast.className =
+          "fixed bottom-5 right-5 z-50 bg-rose-600 text-white px-5 py-3 rounded-2xl shadow-xl font-fun text-sm flex items-center gap-2 animate-bounce";
+        toast.innerHTML = `<span>🎟️ ¡Cupón "<b>${title}</b>" Canjeado! Guardando orden para tu novio...</span>`;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.remove();
+        }, 3500);
+      }
+
+      // --- Send Response back via WhatsApp ---
+      function sendWhatsAppResponse() {
+        const text = encodeURIComponent(
+          "¡Hola mi amor! 🥰 Vi la página web que me hiciste... ¡Me encantó la sorpresa, mi querido hesed! Te amo muchísimo ❤️",
+        );
+        window.open(`https://api.whatsapp.com/send?text=${text}`, "63334060");
+      }
+
+      // --- Floating Hearts Canvas Effect ---
+      function initHeartCanvas() {
+        const canvas = document.getElementById("heart-canvas");
+        const ctx = canvas.getContext("2d");
+
+        function resize() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener("resize", resize);
+
+        const hearts = [];
+        const colors = ["#f43f5e", "#fb7185", "#fda4af", "#fecdd3", "#e11d48"];
+
+        class Heart {
+          constructor() {
+            this.reset();
+          }
+
+          reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = canvas.height + 20;
+            this.size = Math.random() * 15 + 8;
+            this.speedY = Math.random() * 1.5 + 0.5;
+            this.speedX = Math.sin(Math.random() * Math.PI) * 0.8;
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+            this.opacity = Math.random() * 0.5 + 0.3;
+          }
+
+          update() {
+            this.y -= this.speedY;
+            this.x += this.speedX;
+            if (this.y < -20) {
+              this.reset();
+            }
+          }
+
+          draw() {
+            ctx.save();
+            ctx.globalAlpha = this.opacity;
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            const topCurveHeight = this.size * 0.3;
+            ctx.moveTo(this.x, this.y + topCurveHeight);
+            // top left curve
+            ctx.bezierCurveTo(
+              this.x,
+              this.y,
+              this.x - this.size / 2,
+              this.y,
+              this.x - this.size / 2,
+              this.y + topCurveHeight,
+            );
+            // bottom left curve
+            ctx.bezierCurveTo(
+              this.x - this.size / 2,
+              this.y + (this.size + topCurveHeight) / 2,
+              this.x,
+              this.y + this.size,
+              this.x,
+              this.y + this.size,
+            );
+            // bottom right curve
+            ctx.bezierCurveTo(
+              this.x,
+              this.y + this.size,
+              this.x + this.size / 2,
+              this.y + (this.size + topCurveHeight) / 2,
+              this.x + this.size / 2,
+              this.y + topCurveHeight,
+            );
+            // top right curve
+            ctx.bezierCurveTo(
+              this.x + this.size / 2,
+              this.y,
+              this.x,
+              this.y,
+              this.x,
+              this.y + topCurveHeight,
+            );
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        for (let i = 0; i < 25; i++) {
+          const heart = new Heart();
+          heart.y = Math.random() * canvas.height; // scatter initially
+          hearts.push(heart);
+        }
+
+        function animate() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          hearts.forEach((h) => {
+            h.update();
+            h.draw();
+          });
+          requestAnimationFrame(animate);
+        }
+        animate();
+      }
+    </script>
+  </body>
+</html>
